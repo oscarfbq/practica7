@@ -1,9 +1,9 @@
-# services/auth_service.py
 from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class AuthResult:
     ok: bool
+    role: str = ""
     message: str = ""
 
 class AuthService:
@@ -11,13 +11,20 @@ class AuthService:
     Servicio de autenticación. Hoy: validación estática.
     Mañana: cambiar por BD/API.
     """
-    def __init__(self, valid_user: str = "admin", valid_password: str = "1234"):
-        self._user = valid_user
-        self._password = valid_password
+    def __init__(self):
+        self._users = {
+            "admin": "1234",
+            "estudiante": "1234",
+            "maestro": "1234"
+        }
 
     def login(self, username: str, password: str) -> AuthResult:
         if not username or not password:
-            return AuthResult(False, "Usuario y contraseña son requeridos.")
-        if username == self._user and password == self._password:
-            return AuthResult(True, "Autenticación exitosa.")
-        return AuthResult(False, "Usuario o contraseña incorrectos.")
+            return AuthResult(False, message="Usuario y contraseña son requeridos.")
+
+        username = username.lower()
+
+        if username in self._users and self._users[username] == password:
+            return AuthResult(True, role=username, message="Autenticación exitosa.")
+
+        return AuthResult(False, message="Usuario o contraseña incorrectos.")
